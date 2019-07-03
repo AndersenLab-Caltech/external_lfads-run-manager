@@ -1,5 +1,5 @@
 %% This script walks through running LFADS on a single Lorenz dataset
-baseDir = tempdir;
+baseDir = fullfile(tempdir, 'LorenzExample');
 
 %% Generate synthetic Lorenz datasets
 
@@ -78,4 +78,4 @@ rc.prepareForLFADS();
 % load-balancer against the available CPUs and GPUs
 % you should set display to a valid x display
 % Other options are available
-rc.writeShellScriptRunQueue('display', 0, 'virtualenv', 'tensorflow');
+rc.writeShellScriptRunQueue('display', 0, 'virtualenv', 'tensorflow-gpu');
