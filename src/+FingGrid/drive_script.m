@@ -45,14 +45,23 @@ rc.version = 20190703;
 %% Set some hyperparameters
 
 par = FingGrid.RunParams;
-par.name = 'first_attempt'; % name is completely optional and not hashed, for your convenience
-par.spikeBinMs = 2; % rebin the data at 2 ms
+par.name = 'first_attempt_regionall'; % name is completely optional and not hashed, for your convenience
+par.spikeBinMs = 5; % rebin the data at 2 ms
 par.c_co_dim = 0; % no controller --> no inputs to generator
-par.c_batch_size = 150; % must be < 1/5 of the min trial count for trainToTestRatio == 4
-par.c_factors_dim = 8; % and manually set it for multisession stitched models
+par.c_batch_size = 16; % must be < 1/5 of the min trial count for trainToTestRatio == 4
+par.c_factors_dim = 32; % and manually set it for multisession stitched models
 par.c_gen_dim = 64; % number of units in generator RNN
 par.c_ic_enc_dim = 64; % number of units in encoder RNN
 par.c_learning_rate_stop = 1e-3; % we can stop training early for the demo
+
+par.c_ic_dim = 32;
+par.c_l2_gen_scale = 100;
+par.c_kl_ic_weight = 0.5;
+par.c_kl_start_step = 1000;
+par.c_l2_start_step = 1000;
+
+par.c_kl_increase_steps	= 2000;
+par.c_l2_increase_steps = 2000;
 
 % add a single set of parameters to this run collection. Additional
 % parameters can be added. LFADS.RunParams is a value class, unlike the other objects

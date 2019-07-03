@@ -25,7 +25,7 @@ classdef Dataset < LFADS.Dataset
             ds.phase = data.TaskInfo.Phase;
             ds.saveTags = 1;
             ds.datenum  = datenum(data.trial_datetime);
-            ds.nChannels = size(data.spikes, 2);
+            ds.nChannels = size(data.spikes, 3);
             ds.nTrials = size(data.spikes, 1);
 
             ds.infoLoaded = true;

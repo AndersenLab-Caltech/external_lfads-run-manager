@@ -43,8 +43,11 @@ classdef Run < LFADS.Run
 
             data = dataset.loadData();
 
-            out.counts = data.spikes;
-            out.timeVecMs = data.timeMs;
+            % Permute data.spikes, because LFADS-Run-Manager requires different
+            % dim order
+            out.counts = permute(data.spikes, [1 3 2]);
+            % data.timeMs indicates bin starts and ends, so remove the last bin
+            out.timeVecMs = data.timeMs(1:end-1);
             out.conditionId = data.conditionId;
         end
     end
