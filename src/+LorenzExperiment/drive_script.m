@@ -1,9 +1,10 @@
 %% This script walks through running LFADS on a single Lorenz dataset
+baseDir = tempdir;
 
 %% Generate synthetic Lorenz datasets
 
 % build the dataset collection
-datasetPath = '~/lorenz_example/datasets';
+datasetPath = fullfile(baseDir, 'datasets');
 
 % generate demo datasets
 if ~exist(fullfile(datasetPath, 'dataset001.mat'), 'file')
@@ -26,7 +27,7 @@ disp(dc.getDatasetInfoTable())
 %% Build RunCollection - first a single run
 
 % Run a single model for each of the datasets
-runRoot = '~/lorenz_example/runs';
+runRoot = fullfile(baseDir, 'runs');
 rc = LorenzExperiment.RunCollection(runRoot, 'exampleSingleSession', dc);
 
 % replace this with the date this script was authored as YYYYMMDD
