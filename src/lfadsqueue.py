@@ -18,9 +18,13 @@ import numpy as np
 import time
 import shlex
 from multiprocessing import Process, Queue, cpu_count, Lock
-from Queue import Empty
 import sys, traceback
 import errno
+# py2-py3 compatible queue import
+try:
+    from Queue import Empty
+except ImportError:
+    from queue import Empty
 
 # needed for synchronization to ensure tmux isn't called by multiple processes simultaneously
 mutex = Lock()
