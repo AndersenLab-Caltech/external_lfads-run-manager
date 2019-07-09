@@ -20,7 +20,7 @@ Dates = {...
 
 for dateIdx = 1:numel(Dates)
   date = Dates{dateIdx};
-  FingGrid.Dataset(dc, sprintf('FingGrid-%s.mat', date));
+  FingGrid.Dataset(dc, sprintf('FingGrid-%s-M1.mat', date));
 end
 
 % load metadata from the datasets to populate the dataset collection
@@ -45,8 +45,8 @@ rc.version = 20190703;
 %% Set some hyperparameters
 
 par = FingGrid.RunParams;
-par.name = 'first_attempt_regionall'; % name is completely optional and not hashed, for your convenience
-par.spikeBinMs = 5; % rebin the data at 2 ms
+par.name = 'encoderdecoder_dim_sweep_m1'; % name is completely optional and not hashed, for your convenience
+par.spikeBinMs = 20; % rebin the data at 5 ms
 par.c_co_dim = 0; % no controller --> no inputs to generator
 par.c_batch_size = 16; % must be < 1/5 of the min trial count for trainToTestRatio == 4
 par.c_factors_dim = 32; % and manually set it for multisession stitched models

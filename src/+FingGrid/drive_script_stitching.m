@@ -1,23 +1,27 @@
-%% This script walks through running LFADS to stitch multiple Lorenz datasets
-
-%% Generate synthetic Lorenz datasets
-
-% build the dataset collection
-datasetPath = '~/lorenz_example/datasets';
-
-% generate demo datasets
-if ~exist(fullfile(datasetPath, 'dataset001.mat'), 'file')
-    LFADS.Utils.generateDemoDatasets(datasetPath, 'nDatasets', 3);
-end
+%% Run LFADS on a multiple FingGrid datasets
+baseDir = '~/FingGrid';
 
 %% Locate and specify the datasets
+datasetPath = fullfile(baseDir, 'datasets');
 dc = FingGrid.DatasetCollection(datasetPath);
-dc.name = 'lorenz_example';
+dc.name = 'FingGrid';
 
 % add individual datasets
-FingGrid.Dataset(dc, 'dataset001.mat');
-FingGrid.Dataset(dc, 'dataset002.mat');
-FingGrid.Dataset(dc, 'dataset003.mat');
+Dates = {...
+    '20190313',...
+    '20190314',...
+    '20190319',...
+    '20190402',...
+    '20190405',...
+    '20190409',...
+    '20190412',...
+    '20190419'...
+};
+
+for dateIdx = 1:numel(Dates)
+  date = Dates{dateIdx};
+  FingGrid.Dataset(dc, sprintf('FingGrid-%s-M1.mat', date));
+end
 
 % load metadata from the datasets to populate the dataset collection
 dc.loadInfo;
@@ -28,31 +32,33 @@ dc.getDatasetInfoTable()
 %% Set some hyperparameters
 
 par = FingGrid.RunParams;
-par.name = 'first_attempt_stitching'; % completely optional
-par.useAlignmentMatrix = true; % use alignment matrices initial guess for multisession stitching
-
-par.spikeBinMs = 2; % rebin the data at 2 ms
+par.name = 'initial_attempt_m1'; % name is completely optional and not hashed, for your convenience
+par.spikeBinMs = 20; % rebin the data at 5 ms
 par.c_co_dim = 0; % no controller --> no inputs to generator
-par.c_batch_size = 150; % must be < 1/5 of the min trial count
-par.c_factors_dim = 8; % and manually set it for multisession stitched models
+par.c_batch_size = 16; % must be < 1/5 of the min trial count for trainToTestRatio == 4
+par.c_factors_dim = 32; % and manually set it for multisession stitched models
 par.c_gen_dim = 64; % number of units in generator RNN
 par.c_ic_enc_dim = 64; % number of units in encoder RNN
-par.c_learning_rate_stop = 1e-3; % we can stop really early for the demo
+par.c_learning_rate_stop = 1e-3; % we can stop training early for the demo
+
+par.c_ic_dim = 32;
+par.c_l2_gen_scale = 200;
+par.c_kl_ic_weight = 1.0;
+par.c_kl_start_step = 1000;
+par.c_l2_start_step = 1000;
+
+par.c_kl_increase_steps = 2000;
+par.c_l2_increase_steps = 2000;
 
 %% Running a multi-dataset stitching run
-
-% Now we'll do something slightly more interesting. We'll do a total of 4
-% LFADS runs. 3 will be single-session LFADS runs on each of the datasets
-% individually. The last will be a multi-session stitched dataset that
-% leverages all 3 of the datasets in a common shared model.
-
-runRoot = '~/lorenz_example/runs';
-rc = FingGrid.RunCollection(runRoot, 'exampleStitching', dc);
+runRoot = fullfile(baseDir, 'runs');
+sessionName = strjoin(Dates(ds_index), '_');
+rc = FingGrid.RunCollection(runRoot, sessionName, dc);
 
 % replace this with the date this script was authored as YYYYMMDD
 % This ensures that updates to lfads-run-manager won't invalidate older
 % runs already on disk and provides for backwards compatibility
-rc.version = 201801;
+rc.version = 20190703;
 
 % Add a RunSpec using all datasets which LFADS will then "stitch" into a
 % shared dynamical model
@@ -71,7 +77,7 @@ return;
 
 %% Generating accompanying single-dataset models
 
-% If you like you can also add RunSpecs to train individual models for each
+% Add RunSpecs to train individual models for each
 % dataset as well to facilitate comparison.
 for iR = 1:dc.nDatasets
     runSpec = FingGrid.RunSpec(dc.datasets(iR).getSingleRunName(), dc, iR);
@@ -97,7 +103,7 @@ rc.prepareForLFADS();
 % load-balancer against the available CPUs and GPUs
 % you should set display to a valid x display
 % Other options are available
-rc.writeShellScriptRunQueue('display', 0, 'virtualenv', 'tensorflow');
+rc.writeShellScriptRunQueue('display', 0, 'virtualenv', 'tensorflow-gpu-py2');
 
 %% Looking at the alignment matrices used
 

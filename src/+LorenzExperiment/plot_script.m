@@ -1,6 +1,6 @@
 %% Load data
 runList = rc.findRuns('single_dataset001');
-run = runList(4);
+run = runList(1);
 pm = run.loadPosteriorMeans();
 conditionId = run.loadInputInfo().conditionId;
 
