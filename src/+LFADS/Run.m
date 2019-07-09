@@ -450,7 +450,7 @@ classdef Run < handle & matlab.mixin.CustomDisplay
         end
 
         function f = get.fileShellScriptLFADSTrain(r)
-            f = fullfile(r.path, 'lfads_train.sh');
+            f = fullfile(r.path, 'lfads_train.bat');
         end
 
         function f = get.fileShellScriptLFADSPosteriorMeanSample(r)
@@ -1102,8 +1102,8 @@ classdef Run < handle & matlab.mixin.CustomDisplay
             p.addOptional('display', [], @(x) isempty(x) || (isnumeric(x) && mod(x,1)==0)); % empty or integer
             p.addParameter('useTmuxSession', false, @islogical);
             p.addParameter('keepSessionAlive', true, @islogical);
-            p.addParameter('header', '#!/bin/bash', @ischar);
-            p.addParameter('path_run_lfads_py', '$(which run_lfads.py)', @ischar);
+            p.addParameter('header', '', @ischar);
+            p.addParameter('path_run_lfads_py', 'C:\Users\charles\Development\tensorflow_models\research\lfads\run_lfads.py', @ischar);
             p.addParameter('appendPosteriorMeanSample', false, @islogical);
             p.addParameter('appendWriteModelParams', false, @islogical);
             p.addParameter('teeOutput', false, @islogical);
@@ -1164,10 +1164,10 @@ classdef Run < handle & matlab.mixin.CustomDisplay
                 trainString = LFADS.Utils.tmuxify_string(trainString, r.sessionNameTrain, 'keepSessionAlive', p.Results.keepSessionAlive);
             end
 
-            fprintf(fid, '%s\n\n', p.Results.header);
+            % fprintf(fid, '%s\n\n', p.Results.header);
 
             if ~isempty(p.Results.virtualenv)
-                fprintf(fid, 'source activate %s\n', p.Results.virtualenv);
+                % fprintf(fid, 'activate %s\n', p.Results.virtualenv);
             end
 
             if p.Results.prependPathToRunLFADS
@@ -1177,8 +1177,8 @@ classdef Run < handle & matlab.mixin.CustomDisplay
                 end
             end
 
-            checkLFADSFoundString = LFADS.Run.generateCheckRunLFADSPyFoundString(p.Results.path_run_lfads_py);
-            fprintf(fid, '\n%s\n', checkLFADSFoundString);
+            % checkLFADSFoundString = LFADS.Run.generateCheckRunLFADSPyFoundString(p.Results.path_run_lfads_py);
+            % fprintf(fid, '\n%s\n', checkLFADSFoundString);
 
             fprintf(fid, '%s\n', trainString);
             fclose(fid);
@@ -1192,7 +1192,7 @@ classdef Run < handle & matlab.mixin.CustomDisplay
 
         function outputString = buildLFADSTrainingCommand(r, varargin)
             p = inputParser();
-            p.addParameter('path_run_lfads_py', '$(which run_lfads.py)', @ischar);
+            p.addParameter('path_run_lfads_py', 'C:\Users\charles\Development\tensorflow_models\research\lfads\run_lfads.py', @ischar);
             p.addOptional('cuda_visible_devices', [], @(x) isempty(x) || isscalar(x));
             p.addOptional('display', '', @(x) isempty(x) || (isnumeric(x) && mod(x,1)==0));
             p.addParameter('useTmuxSession', false, @islogical);
@@ -1213,11 +1213,6 @@ classdef Run < handle & matlab.mixin.CustomDisplay
             if ~isempty(p.Results.cuda_visible_devices)
                 outputString = sprintf('CUDA_VISIBLE_DEVICES=%i %s', ...
                     p.Results.cuda_visible_devices, outputString);
-            end
-            % set the display variable
-            if ~isempty(p.Results.display)
-                outputString = sprintf('DISPLAY=:%i %s', ...
-                    p.Results.display, outputString);
             end
 
             if p.Results.teeOutput
@@ -1240,7 +1235,7 @@ classdef Run < handle & matlab.mixin.CustomDisplay
 
             p = inputParser();
             p.addParameter('inputParams', @iscell)
-            p.addParameter('path_run_lfads_py', '$(which run_lfads.py)', @ischar);
+            p.addParameter('path_run_lfads_py',  'C:\Users\charles\Development\tensorflow_models\research\lfads\run_lfads.py', @ischar);
             p.addParameter('loadHyperparametersFromFile', false, @islogical);
             p.addParameter('num_samples_posterior', r.params.num_samples_posterior, @isscalar); % can be used to manually overwrite
             p.addParameter('cuda_visible_devices', [], @(x) isempty(x) || isscalar(x));
@@ -1340,7 +1335,7 @@ classdef Run < handle & matlab.mixin.CustomDisplay
 
         function cmd = buildCommandLFADSWriteModelParams(r, varargin)
             p = inputParser();
-            p.addParameter('path_run_lfads_py', '$(which run_lfads.py)', @ischar);
+            p.addParameter('path_run_lfads_py','C:\Users\charles\Development\tensorflow_models\research\lfads\run_lfads.py', @ischar);
             p.addParameter('cuda_visible_devices', [], @(x) isempty(x) || isscalar(x));
             p.addParameter('useTmuxSession', false, @islogical);
             p.addParameter('keepSessionAlive', false, @islogical);
@@ -1406,9 +1401,9 @@ classdef Run < handle & matlab.mixin.CustomDisplay
             p.addParameter('teeOutput', false, @islogical);
             p.addParameter('teeOutputFile', r.fileLFADSOutput, @ischar);
 
-            p.addParameter('path_run_lfads_py', '$(which run_lfads.py)', @ischar);
+            p.addParameter('path_run_lfads_py','C:\Users\charles\Development\tensorflow_models\research\lfads\run_lfads.py', @ischar);
             p.addOptional('cuda_visible_devices', [], @isscalar);
-            p.addParameter('header', '#!/bin/bash', @ischar);
+            p.addParameter('header', '', @ischar);
             p.addParameter('prependPathToRunLFADS', false, @islogical); % prepend an export path to run_lfads.py
             p.addParameter('virtualenv', '', @ischar); % prepend source activate environment name
             p.KeepUnmatched = true;
@@ -1432,10 +1427,10 @@ classdef Run < handle & matlab.mixin.CustomDisplay
                 pmString = LFADS.Utils.tmuxify_string(pmString, r.sessionNamePosteriorMean, 'keepSessionAlive', p.Results.keepSessionAlive);
             end
 
-            fprintf(fid, '%s\n\n', p.Results.header);
+            %fprintf(fid, '%s\n\n', p.Results.header);
 
             if ~isempty(p.Results.virtualenv)
-                fprintf(fid, 'source activate %s\n', p.Results.virtualenv);
+                %fprintf(fid, 'activate %s\n', p.Results.virtualenv);
             end
 
             if p.Results.prependPathToRunLFADS
@@ -1474,8 +1469,8 @@ classdef Run < handle & matlab.mixin.CustomDisplay
             %   validation error checkpoint
 
             p = inputParser();
-            p.addParameter('path_run_lfads_py', '$(which run_lfads.py)', @ischar);
-            p.addParameter('header', '#!/bin/bash', @ischar);
+            p.addParameter('path_run_lfads_py','C:\Users\charles\Development\tensorflow_models\research\lfads\run_lfads.py', @ischar);
+            p.addParameter('header', '', @ischar);
             p.KeepUnmatched = true;
             p.parse(varargin{:});
 
