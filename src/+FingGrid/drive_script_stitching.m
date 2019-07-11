@@ -1,5 +1,6 @@
 %% Run LFADS on a multiple FingGrid datasets
-baseDir = '~/FingGrid';
+baseDir = 'Y:\Results\FingGrid\LFADS';
+baseDir = 'C:\ResultsTemp\FingGrid\LFADS';
 
 %% Locate and specify the datasets
 datasetPath = fullfile(baseDir, 'datasets');
@@ -39,20 +40,27 @@ par.c_batch_size = 16; % must be < 1/5 of the min trial count for trainToTestRat
 par.c_factors_dim = 32; % and manually set it for multisession stitched models
 par.c_gen_dim = 64; % number of units in generator RNN
 par.c_ic_enc_dim = 64; % number of units in encoder RNN
-par.c_learning_rate_stop = 1e-3; % we can stop training early for the demo
+par.c_learning_rate_stop = 3e-4; % we can stop training early for the demo
 
-par.c_ic_dim = 32;
+par.c_ic_dim = 20;
 par.c_l2_gen_scale = 200;
 par.c_kl_ic_weight = 1.0;
-par.c_kl_start_step = 1000;
-par.c_l2_start_step = 1000;
+par.c_kl_start_step = 0;
+par.c_l2_start_step = 0;
 
-par.c_kl_increase_steps = 2000;
-par.c_l2_increase_steps = 2000;
+par.c_kl_increase_steps = 4000;
+par.c_l2_increase_steps = 4000;
+
+% Sweep some paraemeters
+% parSet = par.generateSweep('c_ic_dim', [20, 32],...
+%                            'c_gen_dim', [32, 64],...
+%                            'c_ic_enc_dim', [32, 64],...
+%                            'c_factors_dim', [20, 32]);
+parSet = par.generateSweep();
 
 %% Running a multi-dataset stitching run
 runRoot = fullfile(baseDir, 'runs');
-sessionName = strjoin(Dates(ds_index), '_');
+sessionName = strjoin(Dates, '_');
 rc = FingGrid.RunCollection(runRoot, sessionName, dc);
 
 % replace this with the date this script was authored as YYYYMMDD
@@ -67,7 +75,7 @@ rc.addRunSpec(FingGrid.RunSpec('all', dc, 1:dc.nDatasets));
 % add a single set of parameters to this run collection. Additional
 % parameters can be added. LFADS.RunParams is a value class, unlike the other objects
 % which are handle classes, so you can modify par freely.
-rc.addParams(par);
+rc.addParams(parSet);
 
 % adding a return here allows you to call this script to recreate all of
 % the objects here for subsequent analysis after the actual LFADS models
@@ -89,7 +97,7 @@ end
 run = rc.findRuns('all', 1);
 run.doMultisessionAlignment();
 nFactorsPlot = 3;
-conditionsToPlot = [1 20 40];
+conditionsToPlot = 1:6;
 
 tool = run.multisessionAlignmentTool;
 tool.plotAlignmentReconstruction(nFactorsPlot, conditionsToPlot);
