@@ -1,6 +1,6 @@
 %% Load data
 runList = rc.findRuns('single_FingGrid-20190402-M1');
-run = runList(1);
+run = runList(2);
 pm = run.loadPosteriorMeans();
 conditionId = run.loadInputInfo().conditionId;
 
@@ -10,11 +10,13 @@ rates = squeeze(pm.rates(channel_to_plot, :, :));
 %% Plot smoothed rates by condition index
 [unique_groups, ~, group_idx] = unique(conditionId);
 cmap = jet(numel(unique_groups));
+line_groups = [];
 
 figure; hold on;
 for idx = 1:numel(unique_groups)
-    plot(pm.time, rates(:,conditionId == unique_groups(idx)),...
-         'Color', cmap(idx,:))
+    fighandle = plot(pm.time, rates(:,conditionId == unique_groups(idx)),...
+         'Color', cmap(idx,:));
+     line_groups(idx) = fighandle(1);
 end
 
 hold off;
@@ -22,7 +24,7 @@ hold off;
 xlabel('Time (ms)')
 ylabel('r1');
 % TODO: I thought I took out null case?
-legend({'T','I','M','R','P','N'})
+legend(line_groups, {'T','I','M','R','P','N'})
 
 %% Plot raw spiking rates
 spikes = squeeze(run.loadInputInfo().counts(channel_to_plot,:,:));

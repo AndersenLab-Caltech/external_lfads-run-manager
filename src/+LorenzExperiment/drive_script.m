@@ -46,6 +46,11 @@ par.c_gen_dim = 64; % number of units in generator RNN
 par.c_ic_enc_dim = 64; % number of units in encoder RNN
 par.c_learning_rate_stop = 1e-3; % we can stop training early for the demo
 
+% Sweep some hyperparameters
+parSet = par.generateSweep('c_ic_dim', [16, 32],...
+                           'c_gen_dim', [32, 64, 128],...
+                           'c_ic_enc_dim', [32, 64, 128]);
+
 % add a single set of parameters to this run collection. Additional
 % parameters can be added. LFADS.RunParams is a value class, unlike the other objects
 % which are handle classes, so you can modify par freely.

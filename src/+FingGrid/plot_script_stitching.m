@@ -1,6 +1,6 @@
 %% Load data
 runList = rc.findRuns('all');
-run = runList(1); % Only 1 param set for multisession run
+run = runList(1); % Which paramSet to plot
 pmList = run.loadPosteriorMeans();
 ds_index = 4; % Which dataset to plot from the many
 pm = pmList(ds_index);

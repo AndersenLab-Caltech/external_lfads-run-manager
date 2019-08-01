@@ -6,6 +6,8 @@ datasetPath = fullfile(baseDir, 'datasets');
 dc = FingGrid.DatasetCollection(datasetPath);
 dc.name = 'FingGrid';
 
+brainRegion = 'PPC';
+
 % add individual datasets
 Dates = {...
     '20190313',...
@@ -20,7 +22,7 @@ Dates = {...
 
 for dateIdx = 1:numel(Dates)
   date = Dates{dateIdx};
-  FingGrid.Dataset(dc, sprintf('FingGrid-%s-M1.mat', date));
+  FingGrid.Dataset(dc, sprintf('FingGrid-%s-%s.mat', date, brainRegion));
 end
 
 % load metadata from the datasets to populate the dataset collection
@@ -45,7 +47,7 @@ rc.version = 20190703;
 %% Set some hyperparameters
 
 par = FingGrid.RunParams;
-par.name = 'encoderdecoder_dim_sweep_m1'; % name is completely optional and not hashed, for your convenience
+par.name = sprintf('encoderdecoder_dim_sweep_%s', brainRegion); % name is completely optional and not hashed, for your convenience
 par.spikeBinMs = 20; % rebin the data at 5 ms
 par.c_co_dim = 0; % no controller --> no inputs to generator
 par.c_batch_size = 16; % must be < 1/5 of the min trial count for trainToTestRatio == 4
@@ -55,18 +57,24 @@ par.c_ic_enc_dim = 64; % number of units in encoder RNN
 par.c_learning_rate_stop = 1e-3; % we can stop training early for the demo
 
 par.c_ic_dim = 32;
-par.c_l2_gen_scale = 100;
-par.c_kl_ic_weight = 0.5;
+par.c_l2_gen_scale = 200;
+par.c_kl_ic_weight = 1.0;
 par.c_kl_start_step = 1000;
 par.c_l2_start_step = 1000;
 
-par.c_kl_increase_steps	= 2000;
+par.c_kl_increase_steps = 2000;
 par.c_l2_increase_steps = 2000;
+
+% Sweep some hyperparameters
+parSet = par.generateSweep('c_factors_dim', [20, 32, 64],...
+                           'c_ic_dim', [16, 32, 64],...
+                           'c_gen_dim', [32, 64, 128],...
+                           'c_ic_enc_dim', [32, 64, 128]);
 
 % add a single set of parameters to this run collection. Additional
 % parameters can be added. LFADS.RunParams is a value class, unlike the other objects
 % which are handle classes, so you can modify par freely.
-rc.addParams(par);
+rc.addParams(parSet);
 
 %% Create the RunSpecs
 
