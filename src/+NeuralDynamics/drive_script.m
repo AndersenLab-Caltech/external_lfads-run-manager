@@ -1,10 +1,10 @@
-%% Run LFADS on a single FingGrid dataset
-baseDir = '~/FingGrid';
+%% Run LFADS on a single NeuralDynamics dataset
+baseDir = '~/NeuralDynamics';
 
 %% Locate and specify the datasets
 datasetPath = fullfile(baseDir, 'datasets');
-dc = FingGrid.DatasetCollection(datasetPath);
-dc.name = 'FingGrid';
+dc = NeuralDynamics.DatasetCollection(datasetPath);
+dc.name = 'NeuralDynamics';
 
 brainRegion = 'PPC';
 
@@ -22,7 +22,7 @@ Dates = {...
 
 for dateIdx = 1:numel(Dates)
   date = Dates{dateIdx};
-  FingGrid.Dataset(dc, sprintf('FingGrid-%s-%s.mat', date, brainRegion));
+  NeuralDynamics.Dataset(dc, sprintf('NeuralDynamics-%s-%s.mat', date, brainRegion));
 end
 
 % load metadata from the datasets to populate the dataset collection
@@ -37,7 +37,7 @@ ds_index = 4;
 % Run a single model for each of the datasets
 runRoot = fullfile(baseDir, 'runs');
 sessionName = strjoin(Dates(ds_index), '_');
-rc = FingGrid.RunCollection(runRoot, sessionName, dc);
+rc = NeuralDynamics.RunCollection(runRoot, sessionName, dc);
 
 % replace this with the date this script was authored as YYYYMMDD
 % This ensures that updates to lfads-run-manager will remain compatible 
@@ -46,7 +46,7 @@ rc.version = 20190703;
 
 %% Set some hyperparameters
 
-par = FingGrid.RunParams;
+par = NeuralDynamics.RunParams;
 par.name = sprintf('encoderdecoder_dim_sweep_%s', brainRegion); % name is completely optional and not hashed, for your convenience
 par.spikeBinMs = 20; % rebin the data at 5 ms
 par.c_co_dim = 0; % no controller --> no inputs to generator
@@ -81,7 +81,7 @@ rc.addParams(parSet);
 % Define a RunSpec, which indicates which datasets get included, as well as
 % what name to call this run spec
 runSpecName = dc.datasets(ds_index).getSingleRunName(); % generates a simple run name from this datasets name
-runSpec = FingGrid.RunSpec(runSpecName, dc, ds_index);
+runSpec = NeuralDynamics.RunSpec(runSpecName, dc, ds_index);
 
 % add this RunSpec to the RunCollection
 rc.addRunSpec(runSpec);

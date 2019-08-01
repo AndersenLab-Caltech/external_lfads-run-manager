@@ -1,5 +1,5 @@
 %% Load data
-runList = rc.findRuns('single_FingGrid-20190402-M1');
+runList = rc.findRuns('single_NeuralDynamics-20190402-M1');
 run = runList(2);
 pm = run.loadPosteriorMeans();
 conditionId = run.loadInputInfo().conditionId;
