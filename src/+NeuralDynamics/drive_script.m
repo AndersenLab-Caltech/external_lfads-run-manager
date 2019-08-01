@@ -6,18 +6,13 @@ datasetPath = fullfile(baseDir, 'datasets');
 dc = NeuralDynamics.DatasetCollection(datasetPath);
 dc.name = 'NeuralDynamics';
 
-brainRegion = 'PPC';
+brainRegion = 'M1';
 
 % add individual datasets
 Dates = {...
-    '20190313',...
-    '20190314',...
-    '20190319',...
-    '20190402',...
-    '20190405',...
-    '20190409',...
     '20190412',...
-    '20190419'...
+    '20190517',...
+    '20190528',...
 };
 
 for dateIdx = 1:numel(Dates)
@@ -32,7 +27,7 @@ dc.loadInfo;
 disp(dc.getDatasetInfoTable())
 
 %% Build RunCollection
-ds_index = 4;
+ds_index = 2;
 
 % Run a single model for each of the datasets
 runRoot = fullfile(baseDir, 'runs');
@@ -42,12 +37,12 @@ rc = NeuralDynamics.RunCollection(runRoot, sessionName, dc);
 % replace this with the date this script was authored as YYYYMMDD
 % This ensures that updates to lfads-run-manager will remain compatible 
 % with older runs already on disk
-rc.version = 20190703;
+rc.version = 20190801;
 
 %% Set some hyperparameters
 
 par = NeuralDynamics.RunParams;
-par.name = sprintf('encoderdecoder_dim_sweep_%s', brainRegion); % name is completely optional and not hashed, for your convenience
+par.name = sprintf('first_run_%s', brainRegion); % name is completely optional and not hashed, for your convenience
 par.spikeBinMs = 20; % rebin the data at 5 ms
 par.c_co_dim = 0; % no controller --> no inputs to generator
 par.c_batch_size = 16; % must be < 1/5 of the min trial count for trainToTestRatio == 4
