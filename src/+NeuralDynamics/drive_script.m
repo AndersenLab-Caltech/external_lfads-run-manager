@@ -1,5 +1,5 @@
 %% Run LFADS on a single NeuralDynamics dataset
-baseDir = '~/NeuralDynamics';
+baseDir = '~/LFADS_runs/NeuralDynamics';
 
 %% Locate and specify the datasets
 datasetPath = fullfile(baseDir, 'datasets');
