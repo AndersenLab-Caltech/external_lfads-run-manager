@@ -1,26 +1,23 @@
 %% Run LFADS on a multiple NeuralDynamics datasets
-baseDir = '/media/data/LFADS/NeuralDynamics';
+baseDir = '~/LFADS_runs/NeuralDynamics';
 
 %% Locate and specify the datasets
 datasetPath = fullfile(baseDir, 'datasets');
 dc = NeuralDynamics.DatasetCollection(datasetPath);
 dc.name = 'NeuralDynamics';
 
+brainRegion = 'M1';
+
 % add individual datasets
 Dates = {...
-    '20190313',...
-    '20190314',...
-    '20190319',...NeuralDynamics
-    '20190402',...
-    '20190405',...
-    '20190409',...
     '20190412',...
-    '20190419'...
+    '20190517',...
+    '20190528',...
 };
 
 for dateIdx = 1:numel(Dates)
   date = Dates{dateIdx};
-  NeuralDynamics.Dataset(dc, sprintf('NeuralDynamics-%s-M1.mat', date));
+  NeuralDynamics.Dataset(dc, sprintf('NeuralDynamics-%s-%s.mat', date, brainRegion));
 end
 
 % load metadata from the datasets to populate the dataset collection
@@ -32,26 +29,27 @@ dc.getDatasetInfoTable()
 %% Set some hyperparameters
 
 par = NeuralDynamics.RunParams;
-par.name = 'initial_attempt_m1'; % name is completely optional and not hashed, for your convenience
+par.name = sprintf('multisession_%s', brainRegion); % name is completely optional and not hashed, for your convenience
 par.spikeBinMs = 20; % rebin the data at 5 ms
 par.c_co_dim = 0; % no controller --> no inputs to generator
 par.c_batch_size = 16; % must be < 1/5 of the min trial count for trainToTestRatio == 4
 par.c_factors_dim = 32; % and manually set it for multisession stitched models
-par.c_gen_dim = 64; % number of units in generator RNN
+par.c_gen_dim = 32; % number of units in generator RNN
 par.c_ic_enc_dim = 64; % number of units in encoder RNN
 par.c_learning_rate_stop = 1e-3; % we can stop training early for the demo
 
-par.c_ic_dim = 20;
+par.c_ic_dim = 32;
 par.c_l2_gen_scale = 200;
 par.c_kl_ic_weight = 1.0;
-par.c_kl_start_step = 0;
-par.c_l2_start_step = 0;
+par.c_kl_start_step = 1000;
+par.c_l2_start_step = 1000;
 
 par.c_kl_increase_steps = 2000;
 par.c_l2_increase_steps = 2000;
 
 % Sweep some hyperparameters
-parSet = par.generateSweep('c_gen_dim', [32, 64],...
+parSet = par.generateSweep('c_factors_dim', [20, 32, 64],...
+                           'c_ic_dim', [16, 32],...
                            'c_ic_enc_dim', [32, 64]);
 
 %% Running a multi-dataset stitching run
@@ -110,7 +108,7 @@ rc.prepareForLFADS();
 
 rc.writeShellScriptRunQueue('display', 0, 'virtualenv', 'tensorflow-gpu-py2');
 
-%% Looking at the alignment matrices used
+    %% Looking at the alignment matrices used
 
 runStitched = rc.findRuns('all', 1); % 'all' looks up the RunSpec by name, 1 refers to the first (and here, the only) RunParams
 
